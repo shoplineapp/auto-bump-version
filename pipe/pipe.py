@@ -51,6 +51,7 @@ class AutoBumpVersion(Pipe):
 
         repo = Repo()
         git = repo.git
+        git.config(f"http.{self.env['BITBUCKET_GIT_HTTP_ORIGIN']}.proxy", 'http://host.docker.internal:29418/')
         git.checkout('HEAD', b=self.get_variable('BRANCH_NAME'))
         git.add(self.get_variable('FILE_PATH'))
         git.commit(message="bump version")
