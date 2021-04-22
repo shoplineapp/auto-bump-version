@@ -1,13 +1,20 @@
+import json
 import re
-from git import Repo
+import requests
 
-from bitbucket_pipes_toolkit import Pipe
+from bitbucket import Bitbucket
+from git import Repo
+from bitbucket_pipes_toolkit import Pipe, get_logger
+
+logger = get_logger()
 
 schema = {
     'REGEX': {'type': 'string', 'required': True},
     'FILE_PATH': {'type': 'string', 'required': True},
     'VERSION': {'type': 'string', 'required': False, 'default': ''},
     'BRANCH_NAME': {'type': 'string', 'required': False, 'default': 'feature/auto-bump-version'},
+    'BITBUCKET_CLIENT_ID': {'type': 'string', 'required': True},
+    'BITBUCKET_CLIENT_SECRET': {'type': 'string', 'required': True},
     'DEBUG': {'type': 'boolean', 'required': False, 'default': False}
 }
 
@@ -16,21 +23,22 @@ class AutoBumpVersion(Pipe):
     def run(self):
         super().run()
 
-        self.replace_content()
-        self.git_push()
+        self.__replace_content()
+        self.__git_push()
+        self.__send_pull_request()
 
     @staticmethod
-    def replace_content_with_version(content, regex, version):
+    def __replace_content_with_version(content, regex, version):
         replacement = re.sub(re.search(regex, content)[1], version, re.search(regex, content)[0])
         return re.sub(regex, replacement, content)
 
     @staticmethod
-    def bump_version(current_version):
+    def __bump_version(current_version):
         major, minor, patch = list(map(int, current_version.split('.')))
         minor += 1
         return f"{major}.{minor}.{patch}"
 
-    def replace_content(self):
+    def __replace_content(self):
         regex = self.get_variable('REGEX')
         regex = re.sub(r'::VERSION::', r'([\\d\\.]+)', regex)
 
@@ -40,14 +48,14 @@ class AutoBumpVersion(Pipe):
         version = self.get_variable('VERSION')
         if not re.search(r'\d+\.\d+\.\d+', version):
             current_version = re.search(regex, content)[1]
-            version = self.bump_version(current_version)
+            version = self.__bump_version(current_version)
 
-        content = self.replace_content_with_version(content, regex, version)
+        content = self.__replace_content_with_version(content, regex, version)
 
         with open(self.get_variable('FILE_PATH'), 'w') as f:
             f.write(content)
 
-    def git_push(self):
+    def __git_push(self):
 
         repo = Repo()
         git = repo.git
@@ -57,6 +65,15 @@ class AutoBumpVersion(Pipe):
         git.commit(message="bump version")
         origin = repo.remotes.origin
         origin.push(self.get_variable('BRANCH_NAME'))
+
+    def __send_pull_request(self):
+        bitbucket = Bitbucket(self.get_variable('CLIENT_ID'), self.get_variable('CLIENT_SECRET'))
+        url = bitbucket.create_pull_request(self.get_variable('BRANCH_NAME'), self.env['BITBUCKET_REPO_FULL_NAME'])
+
+        if url:
+            logger.info(url)
+        else:
+            self.fail('Pull request create error')
 
 
 if __name__ == '__main__':
