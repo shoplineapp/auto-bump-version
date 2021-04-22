@@ -67,7 +67,7 @@ class AutoBumpVersion(Pipe):
         origin.push(self.get_variable('BRANCH_NAME'))
 
     def __send_pull_request(self):
-        bitbucket = Bitbucket(self.get_variable('CLIENT_ID'), self.get_variable('CLIENT_SECRET'))
+        bitbucket = Bitbucket(self.get_variable('BITBUCKET_CLIENT_ID'), self.get_variable('BITBUCKET_CLIENT_SECRET'))
         url = bitbucket.create_pull_request(self.get_variable('BRANCH_NAME'), self.env['BITBUCKET_REPO_FULL_NAME'])
 
         if url:
