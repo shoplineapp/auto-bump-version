@@ -25,7 +25,12 @@ class AutoBumpVersion(Pipe):
 
         self.__replace_content()
         self.__git_push()
-        self.__send_pull_request()
+        url = self.__send_pull_request()
+
+        if url:
+            print('PR url: {}'.format(url))
+        else:
+            self.fail('Pull request create error')
 
     @staticmethod
     def __replace_content_with_version(content, regex, version):
@@ -68,12 +73,7 @@ class AutoBumpVersion(Pipe):
 
     def __send_pull_request(self):
         bitbucket = Bitbucket(self.get_variable('BITBUCKET_CLIENT_ID'), self.get_variable('BITBUCKET_CLIENT_SECRET'))
-        url = bitbucket.create_pull_request(self.get_variable('BRANCH_NAME'), self.env['BITBUCKET_REPO_FULL_NAME'])
-
-        if url:
-            logger.info(url)
-        else:
-            self.fail('Pull request create error')
+        return bitbucket.create_pull_request(self.get_variable('BRANCH_NAME'), self.env['BITBUCKET_REPO_FULL_NAME'])
 
 
 if __name__ == '__main__':
