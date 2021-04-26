@@ -19,7 +19,7 @@ schema = {
 
 class AutoBumpVersion(Pipe):
 
-    __version_replacement = f'{{VERSION}}'
+    __version_replacement = r'{{VERSION}}'
 
     def run(self):
         super().run()
