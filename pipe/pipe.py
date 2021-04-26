@@ -45,7 +45,7 @@ class AutoBumpVersion(Pipe):
 
     def __replace_content(self):
         regex = self.get_variable('REGEX')
-        regex = re.sub(r'::VERSION::', r'([\\d\\.]+)', regex)
+        regex = re.sub(r'{{VERSION}}', r'([\\d\\.]+)', regex)
 
         with open(self.get_variable('FILE_PATH'), 'r') as f:
             content = f.read()
