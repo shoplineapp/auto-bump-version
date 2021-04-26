@@ -1,6 +1,4 @@
-import json
 import re
-import requests
 
 from bitbucket import Bitbucket
 from git import Repo
@@ -20,6 +18,9 @@ schema = {
 
 
 class AutoBumpVersion(Pipe):
+
+    __version_replacement = f'{{VERSION}}'
+
     def run(self):
         super().run()
 
@@ -45,7 +46,11 @@ class AutoBumpVersion(Pipe):
 
     def __replace_content(self):
         regex = self.get_variable('REGEX')
-        regex = re.sub(r'{{VERSION}}', r'([\\d\\.]+)', regex)
+
+        if self.__version_replacement not in regex:
+            self.fail("no {} replacement in the variable".format(self.__version_replacement))
+
+        regex = re.sub(self.__version_replacement, r'([\\d\\.]+)', regex)
 
         with open(self.get_variable('FILE_PATH'), 'r') as f:
             content = f.read()
