@@ -55,8 +55,11 @@ class BumpVersion:
         origin.push(self.pipe.get_variable('BRANCH_NAME'))
 
     def __send_pull_request(self):
-        bitbucket = Bitbucket(
-            self.pipe.get_variable('BITBUCKET_CLIENT_ID'), self.pipe.get_variable('BITBUCKET_CLIENT_SECRET'))
+        try:
+            bitbucket = Bitbucket(
+                self.pipe.get_variable('BITBUCKET_CLIENT_ID'), self.pipe.get_variable('BITBUCKET_CLIENT_SECRET'))
 
-        return bitbucket.create_pull_request(
-            self.pipe.get_variable('BRANCH_NAME'), self.pipe.env['BITBUCKET_REPO_FULL_NAME'])
+            return bitbucket.create_pull_request(
+                self.pipe.get_variable('BRANCH_NAME'), self.pipe.env['BITBUCKET_REPO_FULL_NAME'])
+        except KeyError:
+            self.pipe.fail('missing variable BITBUCKET_CLIENT_ID or BITBUCKET_CLIENT_SECRET')

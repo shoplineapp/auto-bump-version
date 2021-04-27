@@ -9,8 +9,8 @@ schema = {
     'FILE_PATH': {'type': 'string', 'required': True},
     'VERSION': {'type': 'string', 'required': False, 'default': ''},
     'BRANCH_NAME': {'type': 'string', 'required': False, 'default': 'feature/auto-bump-version'},
-    'BITBUCKET_CLIENT_ID': {'type': 'string', 'required': True},
-    'BITBUCKET_CLIENT_SECRET': {'type': 'string', 'required': True},
+    'BITBUCKET_CLIENT_ID': {'type': 'string', 'required': False},
+    'BITBUCKET_CLIENT_SECRET': {'type': 'string', 'required': False},
     'TAGGING': {'type': 'boolean', 'required': True, 'default': False},
     'DEBUG': {'type': 'boolean', 'required': False, 'default': False}
 }
