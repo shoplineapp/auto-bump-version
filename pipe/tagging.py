@@ -13,7 +13,7 @@ class Tagging:
     def run(self):
         git = Repo().git
 
-        commit_id = re.search(r'commit (?P<commit_id>\w+)', git.log("-1"))['commit_id']
+        commit_id = re.search(r'commit (?P<commit_id>\w+)', git.log("-1", "--no-merges"))['commit_id']
         self.logger.info('commit id: {}'.format(commit_id))
 
         file_changes = git.diff_tree("--no-commit-id", "--name-only", '-r', commit_id).split("\n")
