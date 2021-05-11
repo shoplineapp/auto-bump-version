@@ -1,3 +1,4 @@
 bitbucket-pipes-toolkit~=1.1.0
 GitPython~=3.1.14
 requests~=2.25.1
+packaging~=20.9

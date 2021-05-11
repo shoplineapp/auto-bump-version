@@ -2,6 +2,7 @@ import re
 
 from git import Repo
 from bitbucket_pipes_toolkit import get_logger
+from packaging import version
 
 
 class Tagging:
@@ -20,7 +21,16 @@ class Tagging:
         self.logger.info('file changes: {}'.format(file_changes))
 
         if self.pipe.get_variable('FILE_PATH') in file_changes:
+
+            max_tag = "0.0.0"
+            tags = git.tag().split('\n')
+            if tags:
+                tags = [t for t in tags if re.match(r"^\d+\.\d+\.\d+$", t)]
+                tags.sort(key=lambda s: list(map(int, s.split('.'))))
+                max_tag = tags[-1]
+
             current_version = self.pipe.current_version()
-            git.config(f"http.{self.pipe.env['BITBUCKET_GIT_HTTP_ORIGIN']}.proxy", 'http://host.docker.internal:29418/')
-            git.tag(a=current_version, m="auto tag version {} by bitbucket pipeline".format(current_version))
-            git.push(tags=True)
+            if version.parse(current_version) > version.parse(max_tag):
+                git.config(f"http.{self.pipe.env['BITBUCKET_GIT_HTTP_ORIGIN']}.proxy", 'http://host.docker.internal:29418/')
+                git.tag(a=current_version, m="auto tag version {} by bitbucket pipeline".format(current_version))
+                git.push(tags=True)
