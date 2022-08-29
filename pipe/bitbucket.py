@@ -17,26 +17,26 @@ class Bitbucket:
             auth=(self.client_id, self.client_secret))
 
         if response.status_code != 200:
-            raise Exception('invalid Bitbucket credential')
+            raise Exception('invalid Bitbucket credential: ' + str(response.content))
 
         return response.json()['access_token']
 
-    def create_pull_request(self, branch_name, repo):
+    def create_pull_request(self, source_branch, target_branch, repo):
         
         url = f"https://api.bitbucket.org/2.0/repositories/{repo}/pullrequests"
         data = {
-            'title': branch_name,
+            'title': source_branch,
             'state': 'OPEN',
             'open': True,
             'closed': False,
             'source': {
                 'branch': {
-                    'name': branch_name
+                    'name': source_branch
                 }
             },
             'destination': {
                 'branch': {
-                    'name': 'master'
+                    'name': target_branch
                 }
             }
         }
@@ -51,4 +51,4 @@ class Bitbucket:
         if content['type'] == 'error':
             return False
         else:
-            return f"https://bitbucket.org/{repo}/pull-requests/{content['id']}/1/diff"
+            return f"https://bitbucket.org/{repo}/pull-requests/{content['id']}"

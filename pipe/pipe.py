@@ -12,7 +12,8 @@ schema = {
     'BITBUCKET_CLIENT_ID': {'type': 'string', 'required': False},
     'BITBUCKET_CLIENT_SECRET': {'type': 'string', 'required': False},
     'TAGGING': {'type': 'boolean', 'required': True, 'default': False},
-    'DEBUG': {'type': 'boolean', 'required': False, 'default': False}
+    'DEBUG': {'type': 'boolean', 'required': False, 'default': False},
+    'IS_PATCH': {'type': 'boolean', 'required': False, 'default': False}
 }
 
 
@@ -32,7 +33,8 @@ class AutoBumpVersion(Pipe):
         regex = self.get_variable('REGEX')
 
         if self.version_replacement not in regex:
-            self.fail("no {} replacement in the variable".format(self.version_replacement))
+            self.fail("no {} replacement in the variable".format(
+                self.version_replacement))
 
         return re.sub(self.version_replacement, r'([\\d\\.]+)', regex)
 
