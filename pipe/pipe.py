@@ -13,7 +13,8 @@ schema = {
     'BITBUCKET_CLIENT_SECRET': {'type': 'string', 'required': False},
     'TAGGING': {'type': 'boolean', 'required': True, 'default': False},
     'DEBUG': {'type': 'boolean', 'required': False, 'default': False},
-    'IS_PATCH': {'type': 'boolean', 'required': False, 'default': False}
+    'IS_PATCH': {'type': 'boolean', 'required': False, 'default': False},
+    'CREATE_PR': {'type': 'boolean', 'required': False, 'default': True}
 }
 
 

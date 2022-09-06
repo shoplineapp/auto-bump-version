@@ -10,16 +10,20 @@ class BumpVersion:
         self.pipe = pipe
         self.pr_target_branch = self.pipe.env["BITBUCKET_BRANCH"]
         self.pr_source_branch = self.pipe.get_variable('BRANCH_NAME')
+        self.create_pr = self.pipe.get_variable('CREATE_PR')
+        self.pipe.log_info(f"CREATE_PR is {self.pipe.get_variable('CREATE_PR')}")
+        self.pipe.log_info(f"BRANCH_NAME is {self.pipe.get_variable('BRANCH_NAME')}")
 
     def run(self):
         self.__replace_content()
         self.__git_push()
-        url = self.__send_pull_request()
 
-        if url:
-            print('PR url: {}'.format(url))
-        else:
-            self.pipe.fail('Pull request create error')
+        if self.create_pr:
+            url = self.__send_pull_request()
+            if url:
+                print('PR url: {}'.format(url))
+            else:
+                self.pipe.fail('Pull request create error')
 
     @staticmethod
     def __replace_content_with_version(content, regex, version):
@@ -61,7 +65,7 @@ class BumpVersion:
         git.add(self.pipe.get_variable('FILE_PATH'))
         git.commit(message="bump version")
         origin = repo.remotes.origin
-        origin.push(self.pipe.get_variable('BRANCH_NAME'))
+        origin.push(self.pipe.get_variable('BRANCH_NAME'), f=True)
 
     def __send_pull_request(self):
         try:
